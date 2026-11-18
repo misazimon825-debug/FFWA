@@ -567,6 +567,19 @@
 
     let currentUser = null;
 
+    function normalizePlayers(rawPlayers) {
+      if (!rawPlayers) return [];
+      if (Array.isArray(rawPlayers)) {
+        return rawPlayers.filter((p) => typeof p === "string" && p.trim() !== "").map((p) => p.trim());
+      }
+      if (typeof rawPlayers === "object") {
+        return Object.values(rawPlayers)
+          .filter((p) => typeof p === "string" && p.trim() !== "")
+          .map((p) => p.trim());
+      }
+      return [];
+    }
+
     function isManager(user) {
       if (!user || !user.username) return false;
       return MANAGERS.includes(String(user.username).toLowerCase());
@@ -577,16 +590,19 @@
       document.getElementById("slotCounter1v1").textContent = `${count}/${MAX_SLOTS_1V1}`;
       document.getElementById("adminCountReadout").textContent = `${count}/${MAX_SLOTS_1V1}`;
 
+      const players = normalizePlayers(leagueState.players);
+      leagueState.players = players;
+
       const rosterEl = document.getElementById("roster1v1");
       rosterEl.innerHTML = "";
-      if (!leagueState.players || leagueState.players.length === 0) {
+      if (players.length === 0) {
         const empty = document.createElement("span");
         empty.style.color = "var(--text-muted)";
         empty.style.fontSize = "0.84rem";
         empty.textContent = "Пока нет подтверждённых игроков";
         rosterEl.appendChild(empty);
       } else {
-        leagueState.players.forEach((name) => {
+        players.forEach((name) => {
           const chip = document.createElement("span");
           chip.className = "roster-chip";
           chip.textContent = name;
@@ -596,7 +612,7 @@
 
       const adminListEl = document.getElementById("adminPlayersList");
       adminListEl.innerHTML = "";
-      (leagueState.players || []).forEach((name, idx) => {
+      players.forEach((name, idx) => {
         const tag = document.createElement("span");
         tag.className = "admin-player-tag";
 
@@ -682,12 +698,14 @@
       if (val) {
         leagueState = {
           acceptedCount: Number(val.acceptedCount) || 0,
-          players: Array.isArray(val.players) ? val.players : []
+          players: normalizePlayers(val.players)
         };
       } else {
         leagueState = { acceptedCount: 0, players: [] };
       }
       renderLeagueView();
+    }, (error) => {
+      console.error("Firebase read error:", error);
     });
 
     // Manager controls
@@ -708,8 +726,12 @@
       const input = document.getElementById("newPlayerInput");
       const val = input.value.trim();
       if (!val) return;
-      if (!Array.isArray(leagueState.players)) leagueState.players = [];
-      leagueState.players.push(val);
+      const currentPlayers = normalizePlayers(leagueState.players);
+      currentPlayers.push(val);
+      leagueState.players = currentPlayers;
+      if ((Number(leagueState.acceptedCount) || 0) < currentPlayers.length) {
+        leagueState.acceptedCount = Math.min(MAX_SLOTS_1V1, currentPlayers.length);
+      }
       input.value = "";
       renderLeagueView();
     });
@@ -721,16 +743,20 @@
         feedback.textContent = "Нет прав менеджера.";
         return;
       }
+      const cleanPlayers = normalizePlayers(leagueState.players);
+      const cleanCount = Math.max(0, Math.min(MAX_SLOTS_1V1, Number(leagueState.acceptedCount) || 0));
+
       try {
         await dbRef.set({
-          acceptedCount: Math.max(0, Math.min(MAX_SLOTS_1V1, Number(leagueState.acceptedCount) || 0)),
-          players: leagueState.players || [],
+          acceptedCount: cleanCount,
+          players: cleanPlayers,
           updatedBy: currentUser.username || "manager",
           updatedAt: Date.now()
         });
         feedback.style.color = "var(--success)";
         feedback.textContent = "Сохранено! Счётчик и состав обновились у всех.";
       } catch (err) {
+        console.error("Firebase write error:", err);
         feedback.style.color = "var(--danger)";
         feedback.textContent = "Ошибка сохранения в базу: проверь Rules в Firebase.";
       }
