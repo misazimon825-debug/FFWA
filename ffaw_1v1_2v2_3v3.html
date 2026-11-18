@@ -1,0 +1,1530 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FFAW — Football For All Winners | Турниры 1v1, 2v2, 3v3</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,600;0,700;1,700&family=Inter:wght@400;500;600;700;800;900&family=Russo+One&display=swap" rel="stylesheet" />
+
+  <style>
+    /* =========================================================================
+       1. БАЗОВЫЕ ТОКЕНЫ И ТЕМНЫЙ ГРАФИТОВЫЙ ФОН С ТЕКСТУРОЙ
+       ========================================================================= */
+    :root {
+      --bg-charcoal: #121317;
+      --bg-charcoal-deep: #0c0d10;
+      --surface-card: #181920;
+      --surface-elevated: #1e2029;
+      --surface-inset: #101116;
+
+      --text-primary: #f5f5fa;
+      --text-secondary: #b4b6c7;
+      --text-muted: #7c7f94;
+
+      --violet-dark: #2e1065;
+      --violet-core: #4c1d95;
+      --violet-bright: #7c3aed;
+      --pink-toxic: #ff2ea6;
+      --pink-deep: #e61e8c;
+      --pink-soft: rgba(255, 46, 166, 0.28);
+
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-active: rgba(255, 46, 166, 0.55);
+
+      --font-display: 'Russo One', 'Chakra Petch', 'Arial Black', Impact, sans-serif;
+      --font-sharp: 'Chakra Petch', 'Inter', 'Arial Black', sans-serif;
+      --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font-body);
+      color: var(--text-primary);
+      background-color: var(--bg-charcoal);
+      overflow-x: hidden;
+      position: relative;
+      /* Многослойный тёмно-угольный фон: радиальное свечение + шлифованная текстура + зерно */
+      background-image:
+        radial-gradient(ellipse 80% 45% at 50% -5%, rgba(76, 29, 149, 0.28), transparent 70%),
+        radial-gradient(ellipse 65% 35% at 50% 42%, rgba(255, 46, 166, 0.09), transparent 72%),
+        repeating-linear-gradient(
+          90deg,
+          rgba(255, 255, 255, 0.014) 0px,
+          rgba(255, 255, 255, 0.014) 1px,
+          transparent 1px,
+          transparent 4px
+        ),
+        repeating-linear-gradient(
+          0deg,
+          rgba(255, 255, 255, 0.012) 0px,
+          rgba(255, 255, 255, 0.012) 1px,
+          transparent 1px,
+          transparent 3px
+        ),
+        linear-gradient(180deg, #15171c 0%, #121317 48%, #0d0e12 100%);
+    }
+
+    /* Тонкий шумовой оверлей через SVG data-URI для живой графитовой фактуры */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.22;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+    }
+
+    .site-shell {
+      position: relative;
+      z-index: 1;
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input {
+      font-family: inherit;
+    }
+
+    /* =========================================================================
+       2. ВЕРХНЯЯ КОМПАКТНАЯ ПАНЕЛЬ (TOP BAR)
+       ========================================================================= */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      background: rgba(18, 19, 23, 0.84);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .topbar-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .brand-mini {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 8px 4px 2px;
+      border-radius: 10px;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+
+    .brand-mini:hover {
+      transform: translateY(-1px);
+    }
+
+    .brand-mini-word {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 800;
+      font-size: 21px;
+      letter-spacing: 0.04em;
+      line-height: 1;
+      padding-right: 4px;
+      background: linear-gradient(180deg, #4c1d95 0%, #3b0764 52%, #ff2ea6 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 3px 10px rgba(255, 46, 166, 0.28));
+    }
+
+    .brand-mini-pill {
+      font-family: var(--font-sharp);
+      font-style: italic;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #d8b4fe;
+      background: rgba(76, 29, 149, 0.35);
+      border: 1px solid rgba(167, 139, 250, 0.28);
+      padding: 3px 8px;
+      border-radius: 999px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .tg-quick-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #ff99d6;
+      background: linear-gradient(180deg, rgba(46, 16, 101, 0.55) 0%, rgba(230, 30, 140, 0.18) 100%);
+      border: 1px solid rgba(255, 46, 166, 0.42);
+      box-shadow: 0 4px 18px rgba(230, 30, 140, 0.16);
+      transition: all 0.22s ease;
+    }
+
+    .tg-quick-pill:hover {
+      color: #ffffff;
+      border-color: var(--pink-toxic);
+      background: linear-gradient(180deg, rgba(76, 29, 149, 0.72) 0%, rgba(255, 46, 166, 0.34) 100%);
+      box-shadow: 0 6px 24px rgba(255, 46, 166, 0.34);
+      transform: translateY(-1px);
+    }
+
+    /* =========================================================================
+       3. HERO-СЕКЦИЯ И ФИРМЕННЫЙ ЛОГОТИП FFAW + МЯЧ + СЛОГАН
+       ========================================================================= */
+    .hero {
+      padding: 54px 0 38px;
+      text-align: center;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      box-shadow: 0 8px 24px -10px rgba(255, 46, 166, 0.35);
+      font-family: var(--font-sharp);
+      font-style: italic;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #c4b5fd;
+      margin-bottom: 26px;
+    }
+
+    .hero-eyebrow-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--pink-toxic);
+      box-shadow: 0 0 10px var(--pink-toxic);
+    }
+
+    /* Блок фирменного логотипа: FFAW слева + геометрический мяч справа */
+    .ffaw-lockup-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 28px;
+      padding: 28px 24px;
+      max-width: 780px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(24, 25, 32, 0.88) 0%, rgba(18, 19, 23, 0.95) 100%);
+      border: 1px solid var(--border-subtle);
+      box-shadow:
+        0 24px 60px -24px rgba(0, 0, 0, 0.85),
+        0 10px 32px -10px rgba(255, 46, 166, 0.24),
+        inset 0 -1px 0 rgba(255, 46, 166, 0.28);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Мягкий нижний отсвет токсично-розового под логотипом */
+    .ffaw-lockup-wrap::after {
+      content: "";
+      position: absolute;
+      left: 12%;
+      right: 12%;
+      bottom: -24px;
+      height: 54px;
+      background: radial-gradient(ellipse at center, rgba(255, 46, 166, 0.34), transparent 72%);
+      filter: blur(12px);
+      pointer-events: none;
+    }
+
+    .ffaw-main-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: clamp(10px, 2.4vw, 24px);
+      flex-wrap: nowrap;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Основной текст FFAW: глубокий фиолетовый сверху + плавный нижний отсвет токсично-розового */
+    .ffaw-hero-word {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-weight: 800;
+      font-size: clamp(60px, 12.5vw, 128px);
+      line-height: 0.92;
+      letter-spacing: 0.03em;
+      padding-right: 0.11em; /* запас под наклон последней буквы W */
+      padding-bottom: 0.06em;
+      user-select: none;
+      background: linear-gradient(
+        180deg,
+        #2e1065 0%,
+        #3b0764 42%,
+        #6d28d9 74%,
+        #ff2ea6 100%
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter:
+        drop-shadow(0 8px 18px rgba(255, 46, 166, 0.28))
+        drop-shadow(0 2px 6px rgba(46, 16, 101, 0.75));
+    }
+
+    /* Геометрический футбольный мяч справа от FFAW */
+    .ffaw-ball-svg {
+      width: clamp(54px, 10.5vw, 108px);
+      height: clamp(54px, 10.5vw, 108px);
+      flex-shrink: 0;
+      filter:
+        drop-shadow(0 8px 18px rgba(255, 46, 166, 0.28))
+        drop-shadow(0 3px 8px rgba(46, 16, 101, 0.7));
+      transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .ffaw-lockup-wrap:hover .ffaw-ball-svg {
+      transform: rotate(18deg) scale(1.03);
+    }
+
+    /* Резкий наклонный слоган темно-фиолетового оттенка под логотипом */
+    .ffaw-tagline {
+      margin-top: 14px;
+      position: relative;
+      z-index: 1;
+      font-family: var(--font-sharp);
+      font-style: italic;
+      font-weight: 700;
+      font-size: clamp(13px, 2.3vw, 21px);
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: #4c1d95;
+      text-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.06),
+        0 4px 16px rgba(255, 46, 166, 0.22);
+    }
+
+    .hero-title {
+      margin: 0 auto 14px;
+      max-width: 780px;
+      font-family: var(--font-sharp);
+      font-style: italic;
+      font-weight: 700;
+      font-size: clamp(24px, 4vw, 38px);
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+    }
+
+    .hero-title span {
+      background: linear-gradient(90deg, #a78bfa 0%, var(--pink-toxic) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-subtitle {
+      margin: 0 auto 28px;
+      max-width: 660px;
+      font-size: clamp(15px, 1.8vw, 17px);
+      line-height: 1.65;
+      color: var(--text-secondary);
+    }
+
+    .hero-cta-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    /* =========================================================================
+       4. КНОПКИ (ТОКСИЧНО-РОЗОВЫЙ / ФИОЛЕТОВЫЙ АКЦЕНТ И ВТОРИЧНЫЕ)
+       ========================================================================= */
+    .btn-primary-glow {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 15px 26px;
+      border-radius: 14px;
+      border: 1px solid rgba(255, 130, 206, 0.55);
+      cursor: pointer;
+      font-family: var(--font-sharp);
+      font-style: italic;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--violet-core) 0%, var(--pink-deep) 58%, var(--pink-toxic) 100%);
+      box-shadow:
+        0 10px 28px -6px rgba(255, 46, 166, 0.52),
+        0 4px 14px rgba(76, 29, 149, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.28);
+      transition: transform 0.2s ease, box-shadow 0.22s ease, filter 0.2s ease;
+    }
+
+    .btn-primary-glow:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.06);
+      box-shadow:
+        0 14px 36px -4px rgba(255, 46, 166, 0.68),
+        0 6px 18px rgba(124, 58, 237, 0.55),
+        inset 0 1px 0 rgba(255, 255, 255, 0.36);
+    }
+
+    .btn-primary-glow:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary-dark {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 15px 22px;
+      border-radius: 14px;
+      border: 1px solid rgba(167, 139, 250, 0.28);
+      cursor: pointer;
+      font-family: var(--font-sharp);
+      font-style: italic;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #e9d5ff;
+      background: var(--surface-card);
+      box-shadow: 0 10px 24px -12px rgba(255, 46, 166, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .btn-secondary-dark:hover {
+      color: #ffffff;
+      border-color: rgba(255, 46, 166, 0.5);
+      background: var(--surface-elevated);
+      transform: translateY(-1px);
+    }
+
+    /* =========================================================================
+       5. СЕКЦИЯ ВЫБОРА ФОРМАТОВ (1v1, 2v2, 3v3) И КАРТОЧКИ
+       ========================================================================= */
+    .formats-section {
+      padding: 28px 0 48px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .section-kicker {
+      font-family: var(--font-sharp);
+      font-style: italic;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--pink-toxic);
+      margin-bottom: 6px;
+    }
+
+    .section-heading {
+      margin: 0;
+      font-family: var(--font-sharp);
+      font-style: italic;
+      font-weight: 700;
+      font-size: clamp(22px, 3vw, 30px);
+      color: var(--text-primary);
+    }
+
+    .section-sub {
+      margin: 0;
+      font-size: 14px;
+      color: var(--text-secondary);
+      max-width: 390px;
+    }
+
+    .formats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    @media (max-width: 860px) {
+      .formats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .format-card {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 24px;
+      border-radius: 20px;
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      cursor: pointer;
+      text-align: left;
+      overflow: hidden;
+      transition:
+        transform 0.24s ease,
+        border-color 0.24s ease,
+        box-shadow 0.26s ease,
+        background-color 0.24s ease;
+      box-shadow:
+        0 14px 30px -18px rgba(0, 0, 0, 0.85),
+        0 8px 22px -12px rgba(255, 46, 166, 0.16),
+        inset 0 -1px 0 rgba(255, 46, 166, 0.16);
+    }
+
+    /* Нижний токсично-розовый отсвет карточки */
+    .format-card::after {
+      content: "";
+      position: absolute;
+      left: 10%;
+      right: 10%;
+      bottom: -18px;
+      height: 36px;
+      background: radial-gradient(ellipse at center, rgba(255, 46, 166, 0.26), transparent 72%);
+      filter: blur(10px);
+      opacity: 0.65;
+      pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+
+    .format-card:hover {
+      transform: translateY(-3px);
+      border-color: rgba(255, 46, 166, 0.42);
+      background: var(--surface-elevated);
+      box-shadow:
+        0 18px 38px -16px rgba(0, 0, 0, 0.9),
+        0 10px 28px -8px rgba(255, 46, 166, 0.28),
+        inset 0 -1px 0 rgba(255, 46, 166, 0.34);
+    }
+
+    .format-card:hover::after,
+    .format-card.is-active::after {
+      opacity: 1;
+    }
+
+    .format-card.is-active {
+      border-color: var(--border-active);
+      background: linear-gradient(180deg, #1d1b2b 0%, #181920 68%, rgba(230, 30, 140, 0.08) 100%);
+      box-shadow:
+        0 20px 44px -16px rgba(0, 0, 0, 0.92),
+        0 12px 34px -8px rgba(255, 46, 166, 0.38),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        inset 0 -1px 0 rgba(255, 46, 166, 0.55);
+    }
+
+    .card-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-mode-code {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 36px;
+      line-height: 1;
+      padding-right: 6px;
+      background: linear-gradient(180deg, #4c1d95 0%, #7c3aed 56%, var(--pink-toxic) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 4px 12px rgba(255, 46, 166, 0.25));
+    }
+
+    .card-tag {
+      font-family: var(--font-sharp);
+      font-style: italic;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: rgba(76, 29, 149, 0.32);
+      border: 1px solid rgba(167, 139, 250, 0.25);
+      color: #ddd6fe;
+    }
+
+    .format-card.is-active .card-tag {
+      background: rgba(255, 46, 166, 0.16);
+      border-color: rgba(255, 46, 166, 0.45);
+      color: #ff99d6;
+    }
+
+    .card-title {
+      margin: 0 0 8px;
+      font-family: var(--font-sharp);
+      font-style: italic;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--text-primary);
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-desc {
+      margin: 0 0 18px;
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--text-secondary);
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-footer {
+      position: relative;
+      z-index: 1;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12.5px;
+    }
+
+    .card-select-state {
+      font-weight: 700;
+      color: #c4b5fd;
+    }
+
+    .format-card.is-active .card-select-state {
+      color: #ff80cc;
+    }
+
+    .inline-tg-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 700;
+      color: #ff79c6;
+      padding: 4px 8px;
+      border-radius: 8px;
+      background: rgba(255, 46, 166, 0.1);
+      border: 1px solid rgba(255, 46, 166, 0.26);
+      transition: all 0.18s ease;
+    }
+
+    .inline-tg-link:hover {
+      color: #ffffff;
+      background: rgba(255, 46, 166, 0.24);
+      border-color: rgba(255, 46, 166, 0.55);
+    }
+
+    /* =========================================================================
+       6. ПАНЕЛЬ ДЕТАЛЕЙ ВЫБРАННОГО ФОРМАТА + БЫСТРЫЕ ДЕЙСТВИЯ
+       ========================================================================= */
+    .detail-box {
+      border-radius: 22px;
+      background: linear-gradient(180deg, #191b23 0%, #15161c 100%);
+      border: 1px solid rgba(255, 46, 166, 0.34);
+      padding: 26px;
+      position: relative;
+      overflow: hidden;
+      box-shadow:
+        0 24px 54px -22px rgba(0, 0, 0, 0.9),
+        0 12px 34px -10px rgba(255, 46, 166, 0.25),
+        inset 0 -1px 0 rgba(255, 46, 166, 0.38);
+    }
+
+    .detail-box::after {
+      content: "";
+      position: absolute;
+      left: 15%;
+      right: 15%;
+      bottom: -22px;
+      height: 44px;
+      background: radial-gradient(ellipse at center, rgba(255, 46, 166, 0.3), transparent 72%);
+      filter: blur(12px);
+      pointer-events: none;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 0.95fr;
+      gap: 24px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 860px) {
+      .detail-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .detail-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 10px;
+    }
+
+    .detail-badge {
+      font-family: var(--font-sharp);
+      font-style: italic;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #ffffff;
+      background: linear-gradient(90deg, var(--violet-core), var(--pink-deep));
+      padding: 5px 12px;
+      border-radius: 8px;
+    }
+
+    .detail-team-pill {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #d8b4fe;
+      background: rgba(76, 29, 149, 0.28);
+      border: 1px solid rgba(167, 139, 250, 0.24);
+      padding: 5px 12px;
+      border-radius: 8px;
+    }
+
+    .detail-title {
+      margin: 0 0 10px;
+      font-family: var(--font-sharp);
+      font-style: italic;
+      font-weight: 700;
+      font-size: clamp(22px, 2.8vw, 30px);
+      color: var(--text-primary);
+    }
+
+    .detail-desc {
+      margin: 0 0 18px;
+      font-size: 14.5px;
+      line-height: 1.62;
+      color: var(--text-secondary);
+    }
+
+    .specs-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    @media (max-width: 580px) {
+      .specs-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .spec-item {
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: var(--surface-inset);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .spec-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .spec-value {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #f3e8ff;
+    }
+
+    .action-panel {
+      padding: 20px;
+      border-radius: 18px;
+      background: var(--surface-inset);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .action-panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .manager-handle-link {
+      font-weight: 800;
+      color: #ff79c6;
+      border-bottom: 1px dashed rgba(255, 121, 198, 0.55);
+      padding-bottom: 1px;
+      transition: color 0.18s ease, border-color 0.18s ease;
+    }
+
+    .manager-handle-link:hover {
+      color: #ffffff;
+      border-bottom-color: #ffffff;
+    }
+
+    .message-preview {
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: #d4d7e8;
+      background: rgba(24, 25, 32, 0.9);
+      border: 1px solid var(--border-subtle);
+      border-radius: 12px;
+      padding: 11px 13px;
+      margin: 0;
+    }
+
+    .copy-actions-row {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    @media (max-width: 480px) {
+      .copy-actions-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .copy-btn {
+      padding: 9px 10px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: var(--surface-card);
+      color: #e2e4f0;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      text-align: center;
+    }
+
+    .copy-btn:hover {
+      border-color: rgba(255, 46, 166, 0.48);
+      color: #ffffff;
+      background: var(--surface-elevated);
+    }
+
+    .copy-btn.is-copied {
+      border-color: #34d399;
+      color: #6ee7b7;
+      background: rgba(16, 185, 129, 0.12);
+    }
+
+    /* =========================================================================
+       7. КОМПАКТНАЯ ПАНЕЛЬ НАСТРОЙКИ НИКА МЕНЕДЖЕРА (@MishaZimon по умолчанию)
+       ========================================================================= */
+    .manager-config-bar {
+      margin: 0 0 56px;
+      padding: 16px 20px;
+      border-radius: 16px;
+      background: var(--surface-card);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .manager-config-info {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .manager-config-info strong {
+      color: #ff80cc;
+    }
+
+    .manager-config-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .manager-input-wrap {
+      display: inline-flex;
+      align-items: center;
+      background: var(--surface-inset);
+      border: 1px solid rgba(167, 139, 250, 0.28);
+      border-radius: 10px;
+      padding: 0 10px;
+      height: 38px;
+    }
+
+    .manager-input-wrap span {
+      color: var(--pink-toxic);
+      font-weight: 800;
+      margin-right: 3px;
+      user-select: none;
+    }
+
+    .manager-input-wrap input {
+      width: 150px;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .small-ghost-btn {
+      height: 38px;
+      padding: 0 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
+      background: var(--surface-elevated);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .small-ghost-btn:hover {
+      color: #ffffff;
+      border-color: rgba(255, 46, 166, 0.45);
+    }
+
+    /* =========================================================================
+       8. ФУТЕР
+       ========================================================================= */
+    .site-footer {
+      border-top: 1px solid var(--border-subtle);
+      padding: 24px 0 36px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .site-footer a {
+      color: #ff80cc;
+      font-weight: 600;
+    }
+
+    .site-footer a:hover {
+      color: #ffffff;
+    }
+  </style>
+</head>
+<body>
+  <!-- Компактная верхняя панель -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="#top" class="brand-mini" aria-label="FFAW Главная">
+        <!-- Мини-эмблема мяча в шапке -->
+        <svg width="26" height="26" viewBox="0 0 100 100" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="miniBallGrad" x1="50" y1="4" x2="50" y2="96" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#3b0764" />
+              <stop offset="55%" stop-color="#6d28d9" />
+              <stop offset="100%" stop-color="#ff2ea6" />
+            </linearGradient>
+          </defs>
+          <circle cx="50" cy="50" r="44" stroke="url(#miniBallGrad)" stroke-width="6" />
+          <polygon points="50,31 67,43 61,63 39,63 33,43" stroke="url(#miniBallGrad)" stroke-width="5" stroke-linejoin="round" fill="rgba(255,46,166,0.14)" />
+          <line x1="50" y1="6" x2="50" y2="31" stroke="url(#miniBallGrad)" stroke-width="4.5" />
+          <line x1="89" y1="36" x2="67" y2="43" stroke="url(#miniBallGrad)" stroke-width="4.5" />
+          <line x1="75" y1="85" x2="61" y2="63" stroke="url(#miniBallGrad)" stroke-width="4.5" />
+          <line x1="25" y1="85" x2="39" y2="63" stroke="url(#miniBallGrad)" stroke-width="4.5" />
+          <line x1="11" y1="36" x2="33" y2="43" stroke="url(#miniBallGrad)" stroke-width="4.5" />
+        </svg>
+        <span class="brand-mini-word">FFAW</span>
+        <span class="brand-mini-pill">1v1 · 2v2 · 3v3</span>
+      </a>
+
+      <div class="topbar-actions">
+        <a href="#formats" class="small-ghost-btn" style="display:inline-flex;align-items:center;">Форматы</a>
+        <a id="topManagerLink" href="https://t.me/MishaZimon" target="_blank" rel="noopener noreferrer" class="tg-quick-pill">
+          <span>Telegram:</span>
+          <span class="manager-handle-text">@MishaZimon</span>
+          <span>↗</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="top" class="site-shell">
+    <!-- Hero-секция с логотипом FFAW, мячом справа и слоганом -->
+    <section class="hero">
+      <div class="hero-eyebrow">
+        <span class="hero-eyebrow-dot"></span>
+        <span>Мини-футбольная лига малых составов</span>
+      </div>
+
+      <div class="ffaw-lockup-wrap" role="img" aria-label="FFAW Football For All Winners">
+        <div class="ffaw-main-row">
+          <div class="ffaw-hero-word">FFAW</div>
+
+          <!-- Геометрический футбольный мяч справа от FFAW -->
+          <svg class="ffaw-ball-svg" viewBox="0 0 120 120" fill="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="heroBallStroke" x1="60" y1="6" x2="60" y2="114" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#2e1065" />
+                <stop offset="45%" stop-color="#5b21b6" />
+                <stop offset="78%" stop-color="#c026d3" />
+                <stop offset="100%" stop-color="#ff2ea6" />
+              </linearGradient>
+              <linearGradient id="heroBallFill" x1="60" y1="10" x2="60" y2="110" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#2e1065" stop-opacity="0.28" />
+                <stop offset="100%" stop-color="#ff2ea6" stop-opacity="0.22" />
+              </linearGradient>
+            </defs>
+            <!-- Внешний контур мяча -->
+            <circle cx="60" cy="60" r="52" stroke="url(#heroBallStroke)" stroke-width="6.5" fill="rgba(18,19,23,0.45)" />
+            <!-- Центральный пятиугольник -->
+            <polygon
+              points="60,36 81,51 73,76 47,76 39,51"
+              fill="url(#heroBallFill)"
+              stroke="url(#heroBallStroke)"
+              stroke-width="5.5"
+              stroke-linejoin="round"
+            />
+            <!-- Лучи панелей к ободу -->
+            <line x1="60" y1="8" x2="60" y2="36" stroke="url(#heroBallStroke)" stroke-width="5" stroke-linecap="round" />
+            <line x1="109" y1="44" x2="81" y2="51" stroke="url(#heroBallStroke)" stroke-width="5" stroke-linecap="round" />
+            <line x1="91" y1="102" x2="73" y2="76" stroke="url(#heroBallStroke)" stroke-width="5" stroke-linecap="round" />
+            <line x1="29" y1="102" x2="47" y2="76" stroke="url(#heroBallStroke)" stroke-width="5" stroke-linecap="round" />
+            <line x1="11" y1="44" x2="39" y2="51" stroke="url(#heroBallStroke)" stroke-width="5" stroke-linecap="round" />
+            <!-- Вспомогательные грани панелей -->
+            <path d="M36 16 L60 24 L84 16" stroke="url(#heroBallStroke)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" />
+            <path d="M103 68 L88 53 L95 27" stroke="url(#heroBallStroke)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" />
+            <path d="M17 68 L32 53 L25 27" stroke="url(#heroBallStroke)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" />
+            <path d="M46 110 L60 95 L74 110" stroke="url(#heroBallStroke)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.85" />
+          </svg>
+        </div>
+
+        <div class="ffaw-tagline">FOOTBALL FOR ALL WINNERS</div>
+      </div>
+
+      <h1 class="hero-title">
+        Турниры <span>1 на 1, 2 на 2 и 3 на 3</span> — выбери формат и зайди в игру
+      </h1>
+      <p class="hero-subtitle">
+        Лига <strong>FFAW</strong> создана для динамичного футбола без лишних пауз: дуэли один на один, тактические связки два на два и скоростные мини-матчи три на три. Выберите нужный формат ниже и свяжитесь с менеджером в Telegram в один клик.
+      </p>
+
+      <div class="hero-cta-row">
+        <a id="heroPrimaryTgBtn" href="https://t.me/MishaZimon" target="_blank" rel="noopener noreferrer" class="btn-primary-glow">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M21.4 2.6a1.2 1.2 0 0 0-1.25-.2L2.8 9.2c-1.15.45-1.13 2.1-.02 2.52l4.46 1.66 1.72 5.45c.33 1.04 1.65 1.38 2.43.62l2.48-2.42 4.65 3.43c.88.65 2.13.17 2.35-.9L22.36 4c.18-.85-.32-1.22-.96-1.4zM9.4 13.7l9.45-8.45-7.45 10.1-.28 3.1-1.72-4.75z" />
+          </svg>
+          <span>Записаться у <span class="manager-handle-text">@MishaZimon</span></span>
+        </a>
+        <a href="#formats" class="btn-secondary-dark">Выбрать формат матча</a>
+      </div>
+    </section>
+
+    <!-- Интерактивный выбор форматов 1v1, 2v2, 3v3 -->
+    <section id="formats" class="formats-section" aria-label="Выбор формата турнира">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">Интерактивный выбор</div>
+          <h2 class="section-heading">Форматы турниров FFAW</h2>
+        </div>
+        <p class="section-sub">
+          Нажмите на карточку, чтобы увидеть детали формата и отправить заявку менеджеру в Telegram.
+        </p>
+      </div>
+
+      <div class="formats-grid" role="tablist" aria-label="Форматы матчей">
+        <!-- Карточка 1v1 -->
+        <div
+          class="format-card is-active"
+          role="tab"
+          tabindex="0"
+          aria-selected="true"
+          data-format="1v1"
+        >
+          <div>
+            <div class="card-top-row">
+              <span class="card-mode-code">1v1</span>
+              <span class="card-tag">Дуэль</span>
+            </div>
+            <h3 class="card-title">Один на один</h3>
+            <p class="card-desc">
+              Чистый контроль мяча, финты, реакция и хладнокровие в решающем ударе. Никаких подсказок со стороны — только ты и соперник.
+            </p>
+          </div>
+          <div class="card-footer">
+            <span class="card-select-state">● Выбран 1v1</span>
+            <a
+              href="https://t.me/MishaZimon"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-tg-link"
+              data-direct-format="1v1"
+            >
+              <span class="manager-handle-text">@MishaZimon</span> ↗
+            </a>
+          </div>
+        </div>
+
+        <!-- Карточка 2v2 -->
+        <div
+          class="format-card"
+          role="tab"
+          tabindex="0"
+          aria-selected="false"
+          data-format="2v2"
+        >
+          <div>
+            <div class="card-top-row">
+              <span class="card-mode-code">2v2</span>
+              <span class="card-tag">Связка</span>
+            </div>
+            <h3 class="card-title">Два на два</h3>
+            <p class="card-desc">
+              Быстрые стенки, открывания без мяча и тонкое взаимопонимание пары игроков на компактной площадке с высокой плотностью борьбы.
+            </p>
+          </div>
+          <div class="card-footer">
+            <span class="card-select-state">Выбрать 2v2</span>
+            <a
+              href="https://t.me/MishaZimon"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-tg-link"
+              data-direct-format="2v2"
+            >
+              <span class="manager-handle-text">@MishaZimon</span> ↗
+            </a>
+          </div>
+        </div>
+
+        <!-- Карточка 3v3 -->
+        <div
+          class="format-card"
+          role="tab"
+          tabindex="0"
+          aria-selected="false"
+          data-format="3v3"
+        >
+          <div>
+            <div class="card-top-row">
+              <span class="card-mode-code">3v3</span>
+              <span class="card-tag">Тройка</span>
+            </div>
+            <h3 class="card-title">Три на три</h3>
+            <p class="card-desc">
+              Командный прессинг, смена позиций, комбинации в одно касание и зрелищные концовки для слаженных мини-составов.
+            </p>
+          </div>
+          <div class="card-footer">
+            <span class="card-select-state">Выбрать 3v3</span>
+            <a
+              href="https://t.me/MishaZimon"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-tg-link"
+              data-direct-format="3v3"
+            >
+              <span class="manager-handle-text">@MishaZimon</span> ↗
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Динамическая панель выбранного формата -->
+      <div class="detail-box" aria-live="polite">
+        <div class="detail-grid">
+          <div>
+            <div class="detail-meta-row">
+              <span id="detailBadge" class="detail-badge">Формат 1v1 · Один на один</span>
+              <span id="detailTeamPill" class="detail-team-pill">Состав: 1 игрок</span>
+            </div>
+            <h3 id="detailTitle" class="detail-title">Индивидуальный турнир 1 на 1</h3>
+            <p id="detailDescription" class="detail-desc">
+              Максимальная концентрация и техника владения мячом. Каждая ошибка на своей половине сразу превращается в опасный момент у ворот.
+            </p>
+
+            <div class="specs-grid">
+              <div class="spec-item">
+                <span class="spec-label">Формат матча</span>
+                <span id="detailMatchSpec" class="spec-value">2 × 6 мин · Плей-офф / Группы</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Темп игры</span>
+                <span id="detailPaceSpec" class="spec-value">Взрывной, без остановок</span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Правила</span>
+                <span id="detailRulesSpec" class="spec-value">Компактные ворота, быстрый ввод</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="action-panel">
+            <div class="action-panel-header">
+              <span>Менеджер лиги:</span>
+              <a
+                id="detailManagerLink"
+                href="https://t.me/MishaZimon"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="manager-handle-link"
+              >
+                <span class="manager-handle-text">@MishaZimon</span> ↗
+              </a>
+            </div>
+
+            <p id="detailMessagePreview" class="message-preview">
+              Здравствуйте! Хочу подать заявку на турнир FFAW в формате 1 на 1 (1v1). Подскажите, пожалуйста, ближайшие даты и условия участия.
+            </p>
+
+            <a
+              id="detailCtaButton"
+              href="https://t.me/MishaZimon"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn-primary-glow"
+              style="width: 100%;"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M21.4 2.6a1.2 1.2 0 0 0-1.25-.2L2.8 9.2c-1.15.45-1.13 2.1-.02 2.52l4.46 1.66 1.72 5.45c.33 1.04 1.65 1.38 2.43.62l2.48-2.42 4.65 3.43c.88.65 2.13.17 2.35-.9L22.36 4c.18-.85-.32-1.22-.96-1.4zM9.4 13.7l9.45-8.45-7.45 10.1-.28 3.1-1.72-4.75z" />
+              </svg>
+              <span id="detailCtaLabel">Написать @MishaZimon (1v1)</span>
+            </a>
+
+            <div class="copy-actions-row">
+              <button type="button" id="copyHandleBtn" class="copy-btn">Копировать ник</button>
+              <button type="button" id="copyUrlBtn" class="copy-btn">Копировать ссылку</button>
+              <button type="button" id="copyTextBtn" class="copy-btn">Копировать текст</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Компактная строка настройки ника менеджера с сохранением в localStorage -->
+    <section class="manager-config-bar" aria-label="Настройка контакта менеджера">
+      <div class="manager-config-info">
+        Прямая связь настроена на <strong class="manager-handle-text">@MishaZimon</strong>. При необходимости можно временно указать другой никнейм менеджера для этой страницы:
+      </div>
+      <div class="manager-config-controls">
+        <label class="manager-input-wrap" for="managerHandleInput">
+          <span>@</span>
+          <input
+            type="text"
+            id="managerHandleInput"
+            value="MishaZimon"
+            maxlength="32"
+            autocomplete="off"
+            spellcheck="false"
+            aria-label="Никнейм менеджера в Telegram"
+          />
+        </label>
+        <button type="button" id="resetHandleBtn" class="small-ghost-btn">Сбросить (@MishaZimon)</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="site-shell">
+      <strong>FFAW — FOOTBALL FOR ALL WINNERS</strong> · Форматы 1v1, 2v2, 3v3 · Менеджер в Telegram:
+      <a id="footerManagerLink" href="https://t.me/MishaZimon" target="_blank" rel="noopener noreferrer">
+        <span class="manager-handle-text">@MishaZimon</span> ↗
+      </a>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const DEFAULT_HANDLE = 'MishaZimon';
+      const STORAGE_KEY = 'ffaw_manager_handle_v1';
+
+      const FORMAT_DATA = {
+        '1v1': {
+          badge: 'Формат 1v1 · Один на один',
+          teamPill: 'Состав: 1 игрок',
+          title: 'Индивидуальный турнир 1 на 1',
+          description:
+            'Максимальная концентрация и техника владения мячом. Каждая ошибка на своей половине сразу превращается в опасный момент у ворот соперника.',
+          matchSpec: '2 × 6 мин · Плей-офф / Группы',
+          paceSpec: 'Взрывной, без остановок',
+          rulesSpec: 'Компактные ворота, быстрый ввод',
+          ctaLabelPrefix: 'Написать',
+          message:
+            'Здравствуйте! Хочу подать заявку на турнир FFAW в формате 1 на 1 (1v1). Подскажите, пожалуйста, ближайшие даты и условия участия.'
+        },
+        '2v2': {
+          badge: 'Формат 2v2 · Два на два',
+          teamPill: 'Состав: 2 игрока',
+          title: 'Парный турнир 2 на 2',
+          description:
+            'Динамика стенок, быстрая страховка и сыгранность дуэта. Идеальный баланс между индивидуальным мастерством и командным взаимодействием.',
+          matchSpec: '2 × 7 мин · Групповой этап + Сетка',
+          paceSpec: 'Высокий, плотная борьба',
+          rulesSpec: 'Свободные замены, быстрый розыгрыш',
+          ctaLabelPrefix: 'Написать',
+          message:
+            'Здравствуйте! Хочу подать заявку на турнир FFAW в формате 2 на 2 (2v2). Подскажите, пожалуйста, расписание и детали регистрации.'
+        },
+        '3v3': {
+          badge: 'Формат 3v3 · Три на три',
+          teamPill: 'Состав: 3 игрока',
+          title: 'Командный турнир 3 на 3',
+          description:
+            'Полноценная мини-команда с тактикой, ротацией позиций и высоким прессингом. Максимум комбинаций, сейвов и эмоций на поле.',
+          matchSpec: '2 × 8 мин · Лига / Кубок',
+          paceSpec: 'Стремительный, командный',
+          rulesSpec: 'Ротация позиций, четкий регламент',
+          ctaLabelPrefix: 'Написать',
+          message:
+            'Здравствуйте! Хочу подать заявку на турнир FFAW в формате 3 на 3 (3v3). Подскажите, пожалуйста, свободные слоты и условия участия.'
+        }
+      };
+
+      function normalizeHandle(raw) {
+        if (!raw || typeof raw !== 'string') return DEFAULT_HANDLE;
+        const cleaned = raw.trim().replace(/^@+/, '').replace(/[^a-zA-Z0-9_]/g, '');
+        return cleaned.length > 0 ? cleaned : DEFAULT_HANDLE;
+      }
+
+      function readStoredHandle() {
+        try {
+          const saved = window.localStorage.getItem(STORAGE_KEY);
+          return saved ? normalizeHandle(saved) : DEFAULT_HANDLE;
+        } catch (_err) {
+          return DEFAULT_HANDLE;
+        }
+      }
+
+      function writeStoredHandle(handle) {
+        try {
+          window.localStorage.setItem(STORAGE_KEY, handle);
+        } catch (_err) {
+          // Игнорируем ограничения хранилища в песочнице
+        }
+      }
+
+      let currentFormat = '1v1';
+      let currentHandle = readStoredHandle();
+
+      const cards = Array.from(document.querySelectorAll('.format-card[data-format]'));
+      const directLinks = Array.from(document.querySelectorAll('a[data-direct-format]'));
+      const handleSpans = Array.from(document.querySelectorAll('.manager-handle-text'));
+
+      const topManagerLink = document.getElementById('topManagerLink');
+      const heroPrimaryTgBtn = document.getElementById('heroPrimaryTgBtn');
+      const detailManagerLink = document.getElementById('detailManagerLink');
+      const detailCtaButton = document.getElementById('detailCtaButton');
+      const detailCtaLabel = document.getElementById('detailCtaLabel');
+      const footerManagerLink = document.getElementById('footerManagerLink');
+
+      const detailBadge = document.getElementById('detailBadge');
+      const detailTeamPill = document.getElementById('detailTeamPill');
+      const detailTitle = document.getElementById('detailTitle');
+      const detailDescription = document.getElementById('detailDescription');
+      const detailMatchSpec = document.getElementById('detailMatchSpec');
+      const detailPaceSpec = document.getElementById('detailPaceSpec');
+      const detailRulesSpec = document.getElementById('detailRulesSpec');
+      const detailMessagePreview = document.getElementById('detailMessagePreview');
+
+      const handleInput = document.getElementById('managerHandleInput');
+      const resetHandleBtn = document.getElementById('resetHandleBtn');
+      const copyHandleBtn = document.getElementById('copyHandleBtn');
+      const copyUrlBtn = document.getElementById('copyUrlBtn');
+      const copyTextBtn = document.getElementById('copyTextBtn');
+
+      handleInput.value = currentHandle;
+
+      function buildTelegramUrl(formatKey, handle) {
+        const info = FORMAT_DATA[formatKey] || FORMAT_DATA['1v1'];
+        const encodedText = encodeURIComponent(info.message);
+        return `https://t.me/${encodeURIComponent(handle)}?text=${encodedText}`;
+      }
+
+      function renderUI() {
+        const info = FORMAT_DATA[currentFormat] || FORMAT_DATA['1v1'];
+        const activeUrl = buildTelegramUrl(currentFormat, currentHandle);
+
+        // Обновляем все текстовые отображения @никнейма
+        handleSpans.forEach((el) => {
+          el.textContent = `@${currentHandle}`;
+        });
+
+        // Обновляем ссылки перехода в Telegram
+        topManagerLink.href = activeUrl;
+        heroPrimaryTgBtn.href = activeUrl;
+        detailManagerLink.href = activeUrl;
+        detailCtaButton.href = activeUrl;
+        footerManagerLink.href = `https://t.me/${encodeURIComponent(currentHandle)}`;
+
+        // Обновляем карточки и прямые ссылки внутри них
+        cards.forEach((card) => {
+          const fmt = card.getAttribute('data-format');
+          const isSelected = fmt === currentFormat;
+          card.classList.toggle('is-active', isSelected);
+          card.setAttribute('aria-selected', String(isSelected));
+
+          const stateLabel = card.querySelector('.card-select-state');
+          if (stateLabel) {
+            stateLabel.textContent = isSelected ? `● Выбран ${fmt}` : `Выбрать ${fmt}`;
+          }
+        });
+
+        directLinks.forEach((link) => {
+          const fmt = link.getAttribute('data-direct-format') || currentFormat;
+          link.href = buildTelegramUrl(fmt, currentHandle);
+        });
+
+        // Обновляем детальную панель выбранного формата
+        detailBadge.textContent = info.badge;
+        detailTeamPill.textContent = info.teamPill;
+        detailTitle.textContent = info.title;
+        detailDescription.textContent = info.description;
+        detailMatchSpec.textContent = info.matchSpec;
+        detailPaceSpec.textContent = info.paceSpec;
+        detailRulesSpec.textContent = info.rulesSpec;
+        detailMessagePreview.textContent = info.message;
+        detailCtaLabel.textContent = `${info.ctaLabelPrefix} @${currentHandle} (${currentFormat})`;
+      }
+
+      function selectFormat(nextFormat) {
+        if (!FORMAT_DATA[nextFormat]) return;
+        currentFormat = nextFormat;
+        renderUI();
+      }
+
+      cards.forEach((card) => {
+        card.addEventListener('click', (event) => {
+          // Клик по прямой ссылке на @MishaZimon внутри карточки не сбивает переход по ссылке
+          if (event.target.closest('a[data-direct-format]')) {
+            const fmt = card.getAttribute('data-format');
+            selectFormat(fmt);
+            return;
+          }
+          selectFormat(card.getAttribute('data-format'));
+        });
+
+        card.addEventListener('keydown', (event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            selectFormat(card.getAttribute('data-format'));
+          }
+        });
+      });
+
+      handleInput.addEventListener('input', () => {
+        currentHandle = normalizeHandle(handleInput.value);
+        writeStoredHandle(currentHandle);
+        renderUI();
+      });
+
+      resetHandleBtn.addEventListener('click', () => {
+        currentHandle = DEFAULT_HANDLE;
+        handleInput.value = DEFAULT_HANDLE;
+        writeStoredHandle(DEFAULT_HANDLE);
+        renderUI();
+      });
+
+      function copyWithFeedback(buttonEl, textToCopy, successText) {
+        const originalText = buttonEl.getAttribute('data-orig-label') || buttonEl.textContent;
+        buttonEl.setAttribute('data-orig-label', originalText);
+
+        let copied = false;
+        try {
+          const textarea = document.createElement('textarea');
+          textarea.value = textToCopy;
+          textarea.setAttribute('readonly', '');
+          textarea.style.position = 'fixed';
+          textarea.style.left = '-9999px';
+          document.body.appendChild(textarea);
+          textarea.select();
+          copied = document.execCommand('copy');
+          document.body.removeChild(textarea);
+        } catch (_err) {
+          copied = false;
+        }
+
+        if (!copied && navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(textToCopy).catch(() => {});
+        }
+
+        buttonEl.textContent = successText;
+        buttonEl.classList.add('is-copied');
+        window.clearTimeout(buttonEl._copyTimer);
+        buttonEl._copyTimer = window.setTimeout(() => {
+          buttonEl.textContent = originalText;
+          buttonEl.classList.remove('is-copied');
+        }, 1600);
+      }
+
+      copyHandleBtn.addEventListener('click', () => {
+        copyWithFeedback(copyHandleBtn, `@${currentHandle}`, 'Скопировано!');
+      });
+
+      copyUrlBtn.addEventListener('click', () => {
+        copyWithFeedback(copyUrlBtn, buildTelegramUrl(currentFormat, currentHandle), 'Ссылка скопирована');
+      });
+
+      copyTextBtn.addEventListener('click', () => {
+        const info = FORMAT_DATA[currentFormat] || FORMAT_DATA['1v1'];
+        copyWithFeedback(copyTextBtn, info.message, 'Текст скопирован');
+      });
+
+      renderUI();
+    })();
+  </script>
+</body>
+</html>
